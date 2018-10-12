@@ -1,8 +1,9 @@
-FROM golang:1.11 as mustache
-RUN go get github.com/cbroglie/mustache/...
+FROM golang:1.11 as build
+COPY . src/app
+RUN ls / && pwd
+RUN go build -o /build app/cmd
 
 FROM centos:7
-COPY --from=mustache /go/bin/mustache /usr/bin/mustache
 COPY ./bin/oc /usr/bin/oc
-COPY ./build.sh /usr/bin/build
+COPY --from=build ./build /usr/bin/build
 ENTRYPOINT ["/usr/bin/build"]
