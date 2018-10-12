@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 
 	"github.com/cbroglie/mustache"
@@ -51,12 +52,26 @@ func validateOpts(opt createOption) error {
 	return nil
 }
 
+func debug() {
+	cwd, _ := os.Getwd()
+	fmt.Println("cwd", cwd)
+	files, err := ioutil.ReadDir("./")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, f := range files {
+		fmt.Println(f.Name())
+	}
+}
+
 func createCommand() *cobra.Command {
 	var opt createOption
 	cmd := &cobra.Command{
 		Use:   "create",
 		Short: "create or update the build config",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// debug()
 			if err := validateOpts(opt); err != nil {
 				return err
 			}
@@ -82,7 +97,7 @@ func createCommand() *cobra.Command {
 				source = s
 				revision = "master"
 			}
-			template, err := ioutil.ReadFile("./spec.mustache")
+			template, err := ioutil.ReadFile("/spec.mustache")
 			if err != nil {
 				return err
 			}

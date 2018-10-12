@@ -4,6 +4,8 @@ RUN ls / && pwd
 RUN go build -o /build app/cmd
 
 FROM centos:7
+RUN yum -y install git && yum clean all
 COPY ./bin/oc /usr/bin/oc
+COPY ./spec.mustache /spec.mustache
 COPY --from=build ./build /usr/bin/build
 ENTRYPOINT ["/usr/bin/build"]
