@@ -105,7 +105,7 @@ func createCommand() *cobra.Command {
 	cmd.Flags().StringVar(&opt.name, "name", "", "build configuration name")
 	cmd.Flags().StringVar(&opt.image, "image", "", "image name to push")
 	cmd.Flags().StringVar(&opt.imageStream, "image-stream", "", "image stream to use as build input")
-	cmd.Flags().BoolVar(&opt.toDocker, "toDocker", true, "push the image to a docker registry")
+	cmd.Flags().BoolVar(&opt.toDocker, "to-docker", true, "push the image to a docker registry")
 	return cmd
 }
 
