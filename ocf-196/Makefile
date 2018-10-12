@@ -6,4 +6,4 @@ bin/oc: bin
 
 .PHONY: vdemeester/oc-builder
 vdemeester/oc-builder: bin/oc
-	tar cf - bin/oc Dockerfile | docker build -t vdemeester/oc-builder -
+	tar cf - bin/oc *.mustache build.sh Dockerfile | docker build -t vdemeester/oc-builder -
