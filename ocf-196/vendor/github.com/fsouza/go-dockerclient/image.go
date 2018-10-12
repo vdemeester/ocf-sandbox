@@ -5,7 +5,7 @@
 package docker
 
 import (
-	"context"
+	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -16,6 +16,8 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"golang.org/x/net/context"
 )
 
 // APIImages represent an image returned in the ListImages call.
@@ -471,9 +473,10 @@ type BuildImageOptions struct {
 	NetworkMode         string             `qs:"networkmode"`
 	InactivityTimeout   time.Duration      `qs:"-"`
 	CgroupParent        string             `qs:"cgroupparent"`
-	SecurityOpt         []string           `qs:"securityopt"`
-	Target              string             `gs:"target"`
 	Context             context.Context
+
+	// CARRY: This flag is only honored on projectatomic/docker builds
+	BuildBinds string `qs:"buildbinds"` // this value must be a json encoded string array, e.g. ["/tmp:/mnt"]
 }
 
 // BuildArg represents arguments that can be passed to the image when building
@@ -557,7 +560,7 @@ func (c *Client) BuildImage(opts BuildImageOptions) error {
 	})
 }
 
-func (c *Client) versionedAuthConfigs(authConfigs AuthConfigurations) registryAuth {
+func (c *Client) versionedAuthConfigs(authConfigs AuthConfigurations) interface{} {
 	if c.serverAPIVersion == nil {
 		c.checkAPIVersion()
 	}
@@ -609,18 +612,24 @@ func isURL(u string) bool {
 	return p.Scheme == "http" || p.Scheme == "https"
 }
 
-func headersWithAuth(auths ...registryAuth) (map[string]string, error) {
+func headersWithAuth(auths ...interface{}) (map[string]string, error) {
 	var headers = make(map[string]string)
 
 	for _, auth := range auths {
-		if auth.isEmpty() {
-			continue
+		switch auth.(type) {
+		case AuthConfiguration:
+			var buf bytes.Buffer
+			if err := json.NewEncoder(&buf).Encode(auth); err != nil {
+				return nil, err
+			}
+			headers["X-Registry-Auth"] = base64.URLEncoding.EncodeToString(buf.Bytes())
+		case AuthConfigurations, AuthConfigurations119:
+			var buf bytes.Buffer
+			if err := json.NewEncoder(&buf).Encode(auth); err != nil {
+				return nil, err
+			}
+			headers["X-Registry-Config"] = base64.URLEncoding.EncodeToString(buf.Bytes())
 		}
-		data, err := json.Marshal(auth)
-		if err != nil {
-			return nil, err
-		}
-		headers[auth.headerKey()] = base64.URLEncoding.EncodeToString(data)
 	}
 
 	return headers, nil

@@ -5,12 +5,12 @@
 package docker
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
-	"net/url"
+
+	"golang.org/x/net/context"
 )
 
 // ErrNetworkAlreadyExists is the error returned by CreateNetwork when the
@@ -72,9 +72,7 @@ func (c *Client) FilteredListNetworks(opts NetworkFilterOpts) ([]Network, error)
 	if err != nil {
 		return nil, err
 	}
-	qs := make(url.Values)
-	qs.Add("filters", string(params))
-	path := "/networks?" + qs.Encode()
+	path := "/networks?filters=" + string(params)
 	resp, err := c.do("GET", path, doOptions{})
 	if err != nil {
 		return nil, err
@@ -114,7 +112,7 @@ func (c *Client) NetworkInfo(id string) (*Network, error) {
 type CreateNetworkOptions struct {
 	Name           string                 `json:"Name" yaml:"Name" toml:"Name"`
 	Driver         string                 `json:"Driver" yaml:"Driver" toml:"Driver"`
-	IPAM           *IPAMOptions           `json:"IPAM,omitempty" yaml:"IPAM" toml:"IPAM"`
+	IPAM           IPAMOptions            `json:"IPAM" yaml:"IPAM" toml:"IPAM"`
 	Options        map[string]interface{} `json:"Options" yaml:"Options" toml:"Options"`
 	Labels         map[string]string      `json:"Labels" yaml:"Labels" toml:"Labels"`
 	CheckDuplicate bool                   `json:"CheckDuplicate" yaml:"CheckDuplicate" toml:"CheckDuplicate"`

@@ -104,7 +104,7 @@
 
 [[projects]]
   branch = "openshift-3.10-docker-b68221c"
-  digest = "1:02ed538c8d51aadeda6c362a5e09be99a61585ea7bab8320c8d2b7d5d6153fb0"
+  digest = "1:ab32a55bb86af7ff697311be9a51f01a7bcfc2ef00d13c63b2c6759c85ad11cd"
   name = "github.com/docker/docker"
   packages = [
     "api/types",
@@ -121,13 +121,17 @@
     "builder/dockerfile/command",
     "builder/dockerfile/parser",
     "opts",
+    "pkg/archive",
     "pkg/fileutils",
     "pkg/homedir",
     "pkg/idtools",
     "pkg/ioutils",
+    "pkg/jsonlog",
+    "pkg/jsonmessage",
     "pkg/longpath",
     "pkg/mount",
     "pkg/pools",
+    "pkg/promise",
     "pkg/stdcopy",
     "pkg/system",
     "pkg/term",
@@ -197,17 +201,13 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:e4d1d8f3455dadab4e0f159acaff9075985ddaf6e807247923c088d964f1c845"
+  branch = "openshift-3.9"
+  digest = "1:d3a74e81c489499ae3bd6851e6ef5154898cd6d475966eb0817b694ea3019fb2"
   name = "github.com/fsouza/go-dockerclient"
-  packages = [
-    ".",
-    "internal/archive",
-    "internal/jsonmessage",
-    "internal/term",
-  ]
+  packages = ["."]
   pruneopts = "UT"
-  revision = "f3bdb27a96799b10006a884ef2fed89284466276"
-  version = "v1.3.1"
+  revision = "7511300f03c521cfc8e07e88ea8c915add790f50"
+  source = "github.com/openshift/go-dockerclient"
 
 [[projects]]
   branch = "master"
@@ -460,9 +460,12 @@
   version = "v1.0.1"
 
 [[projects]]
-  digest = "1:38ee335aedf4626620f3cf8f605661e71abdcce7b40b38921962beb3980f0a20"
+  digest = "1:1869683e323ebff2bdf8adcb560f82bf6f8d94019d35099e3403f7df12e9c07e"
   name = "github.com/opencontainers/runc"
-  packages = ["libcontainer/user"]
+  packages = [
+    "libcontainer/system",
+    "libcontainer/user",
+  ]
   pruneopts = "UT"
   revision = "baf6536d6259209c3edfa2b22237af82942d3dfa"
   version = "v0.1.1"
@@ -652,12 +655,11 @@
   version = "v1.2.1"
 
 [[projects]]
-  digest = "1:2ee0f15eb0fb04f918db7c2dcf39745f40d69f798ef171610a730e8a56aaa4fd"
+  digest = "1:28ec0cbe80a71db2987ee2fedc0251bff26e8f13f34b041f524a64e279499ad8"
   name = "github.com/russross/blackfriday"
   packages = ["."]
   pruneopts = "UT"
-  revision = "d3b5b032dc8e8927d31a5071b56e14c89f045135"
-  version = "v2.0.1"
+  revision = "1d6b8e9301e720b08a8938b8c25c018285885438"
 
 [[projects]]
   branch = "master"
@@ -706,10 +708,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:b41f13f4d5dbbd63abe9bf646575e4f83d2637ca243b97ea79b7807242518e8c"
+  digest = "1:56f32737eb70d1269f66f18284487a443295e200ce9a5a3fff7a2d544eeca665"
   name = "golang.org/x/net"
   packages = [
     "context",
+    "context/ctxhttp",
     "http/httpguts",
     "http2",
     "http2/hpack",

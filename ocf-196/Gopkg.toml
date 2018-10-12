@@ -100,6 +100,15 @@
   branch = "openshift-3.10-docker-edc3ab2"
   source = "github.com/openshift/docker-distribution"
 
+[[override]]
+  name = "github.com/fsouza/go-dockerclient"
+  branch = "openshift-3.9"
+  source = "github.com/openshift/go-dockerclient"
+
+[[override]]
+  name = "github.com/russross/blackfriday"
+  revision = "1d6b8e9301e720b08a8938b8c25c018285885438"
+
 [prune]
   go-tests = true
   unused-packages = true
