@@ -74,7 +74,7 @@ func createCommand() *cobra.Command {
 					return err
 				}
 				if !ok {
-					return fmt.Errorf("source is not supported %s (git: %s)", s, url)
+					return fmt.Errorf("source is not supported %s (git: %s, %s)", s, url, remote)
 				}
 				source = remote
 				revision = gitRepo.GetRef(s)

@@ -24,7 +24,7 @@ spec:
   steps:
   - name: oc-create-or-update-build
     image: "${OC_BUILDER_IMAGE}"
-    args: ["create", "--name=${NAME}", "--image=${IMAGE}", "--image-stream=${IMAGE_STREAM}", "--to-docker=${TO_DOCKER}"]
+    args: ["create", "--name=${NAME}", "--image=${IMAGE}", "--image-stream=${IMAGE_STREAM}", "--to-docker=${TO_DOCKER}", "."]
     workingDir: "${DIRECTORY}"
   - name: oc-build
     image: "${OC_BUILDER_IMAGE}"
