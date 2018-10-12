@@ -14,5 +14,5 @@ spec:
       value: python:3.6
     - name: IMAGE
       value: docker.io/vdemeester/helloworld-python
-    - value: NAME
+    - name: NAME
       value: foo-build
