@@ -7,7 +7,8 @@ import (
 	"os"
 
 	"github.com/cbroglie/mustache"
-	newapp "github.com/openshift/origin/pkg/oc/lib/newapp/app"
+	"github.com/openshift/library-go/pkg/git"
+	s2igit "github.com/openshift/source-to-image/pkg/scm/git"
 	"github.com/spf13/cobra"
 )
 
@@ -59,15 +60,38 @@ func createCommand() *cobra.Command {
 			if err := validateOpts(opt); err != nil {
 				return err
 			}
-			config := newapp.NewAppConfig()
+			s := args[0]
+			var source string
+			var revision string
+			url, err := s2igit.Parse(s)
+			if err != nil {
+				return err
+			}
+			gitRepo := git.NewRepository()
+			if url.IsLocal() {
+				remote, ok, err := gitRepo.GetOriginURL(s)
+				if err != nil && err != git.ErrGitNotAvailable {
+					return err
+				}
+				if !ok {
+					return fmt.Errorf("source is not supported %s (git: %s)", s, url)
+				}
+				source = remote
+				revision = gitRepo.GetRef(s)
+			} else {
+				source = s
+				revision = "master"
+			}
 			template, err := ioutil.ReadFile("./spec.mustache")
 			if err != nil {
 				return err
 			}
 			m := map[string]string{
-				"name":        opt.name,
 				"image":       opt.image,
 				"imageStream": opt.imageStream,
+				"name":        opt.name,
+				"revision":    revision,
+				"source":      source,
 				"toDocker":    fmt.Sprintf("%v", opt.toDocker),
 			}
 			yaml, err := mustache.Render(string(template), m)
