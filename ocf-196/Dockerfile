@@ -1,6 +1,5 @@
 FROM golang:1.11 as build
 COPY . src/app
-RUN ls / && pwd
 RUN go build -o /build app/cmd
 
 FROM centos:7

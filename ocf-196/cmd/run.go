@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"syscall"
 
 	"github.com/spf13/cobra"
 )
@@ -30,7 +31,18 @@ func runCommand() *cobra.Command {
 			c := exec.Command("oc", "start-build", opt.name, "--follow")
 			c.Stdout = os.Stdout
 			c.Stderr = os.Stderr
-			return c.Run()
+			if err := c.Start(); err != nil {
+				return err
+			}
+			if err := c.Wait(); err != nil {
+				if exiterr, ok := err.(*exec.ExitError); ok {
+					if status, ok := exiterr.Sys().(syscall.WaitStatus); ok {
+						fmt.Println("ExitStatus:", status.ExitStatus())
+					}
+				}
+				return err
+			}
+			return nil
 		},
 	}
 	cmd.Flags().StringVar(&opt.name, "name", "", "build configuration name")
