@@ -1,0 +1,15 @@
+apiVersion: build.knative.dev/v1alpha1
+kind: Build
+metadata:
+  name: buildah-build-my-repo
+spec:
+  serviceAccountName: build-bot
+  source:
+    git:
+      url: https://github.com/vdemeester/os-sample-python.git
+      revision: dockerfile
+  template:
+    name: buildah
+    arguments:
+    - name: IMAGE
+      value: vdemeester/my-app
