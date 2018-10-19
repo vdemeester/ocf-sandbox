@@ -1,3 +1,3 @@
 #!/bin/bash
 
-/buildah bud -t $1 .
+buildah bud -t $1 .
