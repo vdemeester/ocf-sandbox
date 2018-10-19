@@ -3,7 +3,7 @@ kind: Secret
 metadata:
   name: basic-user-pass
   annotations:
-    build.knative.dev/docker-0: https://gcr.io  # Described below
+    build.knative.dev/docker-0: https://index.docker.io/v1/  # Described below
 type: kubernetes.io/basic-auth
 stringData:
   username: <username>
