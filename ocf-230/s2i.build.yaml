@@ -1,0 +1,18 @@
+apiVersion: build.knative.dev/v1alpha1
+kind: Build
+metadata:
+  name: s2i-build-my-repo
+spec:
+  timeout: 50m
+  serviceAccountName: build-bot
+  source:
+    git:
+      url: https://github.com/vdemeester/os-sample-python
+      revision: master
+  template:
+    name: buildah
+    arguments:
+    - name: BASE_IMAGE
+      value: centos/python-36-centos7
+    - name: IMAGE
+      value: docker.io/vdemeester/helloworld-python
