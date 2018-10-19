@@ -1,0 +1,35 @@
+apiVersion: build.knative.dev/v1alpha1
+kind: BuildTemplate
+metadata:
+  name: buildah
+spec:
+  parameters:
+  - name: BUILDER_IMAGE
+    description: The location of the buildah builder image.
+    default: vdemeester/s2i-builder
+  - name: IMAGE
+    description: The name of the image to push.
+  - name: BASE_IMAGE
+    description: S2I base image to use to build the final image
+    default: ./Dockerfile
+  - name: TLSVERIFY
+    description: Verify the TLS on the registry endpoint (for push/pull to a non-TLS registry)
+    default: "true"
+
+  steps:
+  - name: build
+    image: ${BUILDER_IMAGE}
+    args: ['${BASE_IMAGE}', '${IMAGE}']
+    volumeMounts:
+    - name: varlibcontainers
+      mountPath: /var/lib/containers
+  - name: push
+    image: ${BUILDER_IMAGE}
+    args: ['push', '--tls-verify=${TLSVERIFY}', '--authfile=/builder/home/.docker/config.json', '${IMAGE}', 'docker://${IMAGE}']
+    volumeMounts:
+    - name: varlibcontainers
+      mountPath: /var/lib/containers
+
+  volumes:
+  - name: varlibcontainers
+    emptyDir: {}
