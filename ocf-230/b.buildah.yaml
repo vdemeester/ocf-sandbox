@@ -3,6 +3,7 @@ kind: Build
 metadata:
   name: buildah-build-my-repo
 spec:
+  timeout: 25m
   serviceAccountName: build-bot
   source:
     git:
