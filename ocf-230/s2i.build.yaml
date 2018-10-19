@@ -10,7 +10,7 @@ spec:
       url: https://github.com/vdemeester/os-sample-python
       revision: master
   template:
-    name: buildah
+    name: s2i
     arguments:
     - name: BASE_IMAGE
       value: centos/python-36-centos7

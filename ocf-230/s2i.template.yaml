@@ -1,7 +1,7 @@
 apiVersion: build.knative.dev/v1alpha1
 kind: BuildTemplate
 metadata:
-  name: buildah
+  name: s2i
 spec:
   parameters:
   - name: BUILDER_IMAGE
