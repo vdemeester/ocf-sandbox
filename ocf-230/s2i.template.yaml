@@ -21,7 +21,10 @@ spec:
   steps:
   - name: generate
     image: ${BUILDER_IMAGE}
-    args: ['/workspace', '${BASE_IMAGE}', '${IMAGE}']
+    args: ['--loglevel=5', '/workspace', '${BASE_IMAGE}', '${IMAGE}']
+  - name: debug-1
+    image: busybox
+    args: ['cat', 'Dockerfile']
   - name: build
     image: ${BUILDAH_IMAGE}
     args: ['bud', '--tls-verify=${TLSVERIFY}', '--layers', '-f', '${DOCKERFILE}', '-t', '${IMAGE}', '.']
