@@ -52,7 +52,5 @@ COPY --from=buildah /etc/containers /etc/containers
 ENV BUILDAH_ISOLATION chroot
 ENV STORAGE_DRIVER vfs
 COPY create-dockerfile.sh /
-COPY build-image.sh /
-COPY knative-build-s2i.sh /
 
-ENTRYPOINT [ "/knative-build-s2i.sh" ]
+ENTRYPOINT [ "/create-dockerfile.sh" ]

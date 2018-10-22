@@ -7,7 +7,7 @@ spec:
   - name: BUILDER_IMAGE
     description: The location of the buildah builder image.
     default: vdemeester/s2i-builder
-  - name: PUSH_IMAGE
+  - name: BUILDAH_IMAGE
     description: The location of the buildah builder image.
     default: vdemeester/buildah-builder
   - name: IMAGE
@@ -19,14 +19,17 @@ spec:
     default: "true"
 
   steps:
-  - name: build
+  - name: generate
     image: ${BUILDER_IMAGE}
+    args: ['${BASE_IMAGE}', '${IMAGE}']
+  - name: generate
+    image: ${BUILDAH_IMAGE}
     args: ['${BASE_IMAGE}', '${IMAGE}']
     volumeMounts:
     - name: varlibcontainers
       mountPath: /var/lib/containers
   - name: push
-    image: ${PUSH_IMAGE}
+    image: ${BUILDAH_IMAGE}
     args: ['push', '--tls-verify=${TLSVERIFY}', '--authfile=/builder/home/.docker/config.json', '${IMAGE}', 'docker://${IMAGE}']
     volumeMounts:
     - name: varlibcontainers
