@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 STI_SCRIPTS_PATH=/usr/libexec/s2i
 baseImage=$1

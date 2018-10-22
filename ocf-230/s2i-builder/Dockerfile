@@ -1,56 +1,22 @@
-FROM centos:7 as base
+FROM centos:7 as build
 RUN \
   # Install buildah dependencies.
   yum -y install \
     make \
     golang \
-    bats \
-    btrfs-progs-devel \
-    device-mapper-devel \
-    glib2-devel \
-    gpgme-devel \
-    libassuan-devel \
-    libseccomp-devel \
-    ostree-devel \
     git \
     bzip2
-
-FROM base as runc
-ARG RUNC_REVISION="master"
-
-RUN yum -y install runc
-RUN mkdir ~/runc && \
-  cd ~/runc && \
-  export GOPATH=`pwd` && \
-  git clone https://github.com/opencontainers/runc ./src/github.com/opencontainers/runc && \
-  cd $GOPATH/src/github.com/opencontainers/runc && \
-  git checkout "${RUNC_REVISION}" && \
-  make runc && \
-  mv runc /usr/bin/runc
-
-FROM base as buildah
-ARG BUILDAH_REVISION="master"
-RUN yum -y install \
-    go-md2man \
-    runc \
-    skopeo-containers
-RUN mkdir ~/buildah && \
-  cd ~/buildah && \
+ARG S2I_REVISION="master"
+RUN mkdir ~/s2i && \
+  go version && \
+  cd ~/s2i && \
   export GOPATH=`pwd` && \
   cd $GOPATH/ && \
-  git clone https://github.com/containers/buildah ./src/github.com/containers/buildah && \
-  cd $GOPATH/src/github.com/containers/buildah && \
-  git checkout "${BUILDAH_REVISION}" && \
-  make && \
-  make install
+  git clone https://github.com/openshift/source-to-image ./src/github.com/openshift/source-to-image && \
+  cd $GOPATH/src/github.com/openshift/source-to-image && \
+  git checkout "${S2I_REVISION}" && \
+  go build -o /usr/local/bin/s2i ./cmd/s2i
 
 FROM centos:7
-RUN yum -y install libarchive ostree lzo libseccomp libedit
-COPY --from=runc /usr/bin/runc /usr/bin/runc
-COPY --from=buildah /usr/local/bin/buildah /usr/bin/buildah
-COPY --from=buildah /etc/containers /etc/containers
-ENV BUILDAH_ISOLATION chroot
-ENV STORAGE_DRIVER vfs
-COPY create-dockerfile.sh /
-
-ENTRYPOINT [ "/create-dockerfile.sh" ]
+COPY --from=build /usr/local/bin/s2i /usr/bin/s2i
+ENTRYPOINT [ "s2i", "buldid", "--as-dockerfile=Dockerfile" ]

@@ -21,10 +21,10 @@ spec:
   steps:
   - name: generate
     image: ${BUILDER_IMAGE}
-    args: ['${BASE_IMAGE}', '${IMAGE}']
-  - name: generate
+    args: ['.', '${BASE_IMAGE}', '${IMAGE}']
+  - name: build
     image: ${BUILDAH_IMAGE}
-    args: ['${BASE_IMAGE}', '${IMAGE}']
+    args: ['bud', '--tls-verify=${TLSVERIFY}', '--layers', '-f', '${DOCKERFILE}', '-t', '${IMAGE}', '.']
     volumeMounts:
     - name: varlibcontainers
       mountPath: /var/lib/containers
