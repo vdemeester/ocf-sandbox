@@ -6,13 +6,14 @@ RUN \
     golang \
     git \
     bzip2
-ARG S2I_REVISION="master"
+#ARG S2I_REVISION="master"
+ARG S2I_REVISION="937-fix-recursive-copy"
 RUN mkdir ~/s2i && \
   go version && \
   cd ~/s2i && \
   export GOPATH=`pwd` && \
   cd $GOPATH/ && \
-  git clone https://github.com/openshift/source-to-image ./src/github.com/openshift/source-to-image && \
+  git clone https://github.com/vdemeester/source-to-image ./src/github.com/openshift/source-to-image && \
   cd $GOPATH/src/github.com/openshift/source-to-image && \
   git checkout "${S2I_REVISION}" && \
   go build -o /usr/local/bin/s2i ./cmd/s2i
