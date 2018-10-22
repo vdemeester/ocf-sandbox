@@ -1,7 +1,7 @@
 apiVersion: serving.knative.dev/v1alpha1
 kind: Service
 metadata:
-  name: helloworld-python
+  name: helloworld-openshift-python
   namespace: myproject
 spec:
   runLatest:
@@ -9,7 +9,7 @@ spec:
       build:
         source:
           git:
-            url: https://github.com/vdemeester/os-sample-python
+            url: https://gitlab.com/vdemeester/os-sample-python.git
             revision: master
         template:
           name: openshift-builds # change that
@@ -17,17 +17,14 @@ spec:
           - name: IMAGE_STREAM
             value: python:3.6
           - name: IMAGE
-            value: docker.io/vdemeester/helloworld-python
+            value: docker.io/vdemeester/helloworld-openshift-python
           - name: NAME
             value: foo-build
       revisionTemplate:
         spec:
-          buildRef:
-            apiVersion: build.openshift.io
-            kind: BuildConfig
-            name: helloworld-python
           container:
-            image: docker.io/vdemeester/os-sample-python
+            image: docker.io/vdemeester/helloworld-openshift-python
+            imagePullPolicy: Always
             #image: docker-registry.default.svc:5000/myproject/os-sample-python # doesn't work, see OC-199 (I think)
             env:
             - name: BAR
