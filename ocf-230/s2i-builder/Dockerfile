@@ -19,4 +19,4 @@ RUN mkdir ~/s2i && \
 
 FROM centos:7
 COPY --from=build /usr/local/bin/s2i /usr/bin/s2i
-ENTRYPOINT [ "s2i", "buldid", "--as-dockerfile=Dockerfile" ]
+ENTRYPOINT [ "s2i", "build", "--as-dockerfile=Dockerfile" ]
