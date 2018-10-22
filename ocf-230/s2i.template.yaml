@@ -27,7 +27,7 @@ spec:
     args: ['cat', 'Dockerfile']
   - name: build
     image: ${BUILDAH_IMAGE}
-    args: ['bud', '--tls-verify=${TLSVERIFY}', '--layers', '-f', '${DOCKERFILE}', '-t', '${IMAGE}', '.']
+    args: ['bud', '--tls-verify=${TLSVERIFY}', '--layers', '-f', 'Dockerfile', '-t', '${IMAGE}', '.']
     volumeMounts:
     - name: varlibcontainers
       mountPath: /var/lib/containers
