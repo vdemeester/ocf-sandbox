@@ -7,7 +7,7 @@ spec:
   - name: BUILDER_IMAGE
     description: The location of the buildah builder image.
     default: vdemeester/s2i-builder
-  - name: BUILDAH_IMAGE
+  - name: BUILDAH_BUILDER_IMAGE
     description: The location of the buildah builder image.
     default: vdemeester/buildah-builder
   - name: IMAGE
@@ -21,20 +21,13 @@ spec:
   steps:
   - name: generate
     image: ${BUILDER_IMAGE}
-    args: ['--loglevel=5', '/workspace', '${BASE_IMAGE}', '${IMAGE}']
-    workingDir: /sources
-    volumeMounts:
-    - name: generatedsources
-      mountPath: /sources
-  - name: debug-1
-    image: busybox
-    args: ['cat', 'Dockerfile']
+    args: ['/workspace', '${BASE_IMAGE}', '${IMAGE}']
     workingDir: /sources
     volumeMounts:
     - name: generatedsources
       mountPath: /sources
   - name: build
-    image: ${BUILDAH_IMAGE}
+    image: ${BUILDAH_BUILDER_IMAGE}
     args: ['bud', '--tls-verify=${TLSVERIFY}', '--layers', '-f', 'Dockerfile', '-t', '${IMAGE}', '.']
     workingDir: /sources
     volumeMounts:
@@ -43,7 +36,7 @@ spec:
     - name: varlibcontainers
       mountPath: /var/lib/containers
   - name: push
-    image: ${BUILDAH_IMAGE}
+    image: ${BUILDAH_BUILDER_IMAGE}
     args: ['push', '--tls-verify=${TLSVERIFY}', '--authfile=/builder/home/.docker/config.json', '${IMAGE}', 'docker://${IMAGE}']
     volumeMounts:
     - name: varlibcontainers
