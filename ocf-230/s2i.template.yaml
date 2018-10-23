@@ -22,13 +22,24 @@ spec:
   - name: generate
     image: ${BUILDER_IMAGE}
     args: ['--loglevel=5', '/workspace', '${BASE_IMAGE}', '${IMAGE}']
+    workingDir: /sources
+    volumeMounts:
+    - name: generatedsources
+      mountPath: /sources
   - name: debug-1
     image: busybox
     args: ['cat', 'Dockerfile']
+    workingDir: /sources
+    volumeMounts:
+    - name: generatedsources
+      mountPath: /sources
   - name: build
     image: ${BUILDAH_IMAGE}
     args: ['bud', '--tls-verify=${TLSVERIFY}', '--layers', '-f', 'Dockerfile', '-t', '${IMAGE}', '.']
+    workingDir: /sources
     volumeMounts:
+    - name: generatedsources
+      mountPath: /sources
     - name: varlibcontainers
       mountPath: /var/lib/containers
   - name: push
@@ -40,4 +51,6 @@ spec:
 
   volumes:
   - name: varlibcontainers
+    emptyDir: {}
+  - name: generatedsources
     emptyDir: {}
