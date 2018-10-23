@@ -37,7 +37,7 @@ spec:
       mountPath: /var/lib/containers
   - name: push
     image: ${BUILDAH_BUILDER_IMAGE}
-    args: ['push', '--tls-verify=${TLSVERIFY}', '--authfile=/builder/home/.docker/config.json', '${IMAGE}', 'docker://${IMAGE}']
+    args: ['push', '--tls-verify=${TLSVERIFY}', '${IMAGE}', 'docker://${IMAGE}']
     volumeMounts:
     - name: varlibcontainers
       mountPath: /var/lib/containers
