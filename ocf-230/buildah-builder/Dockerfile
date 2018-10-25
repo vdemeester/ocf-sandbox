@@ -29,7 +29,7 @@ RUN mkdir ~/runc && \
   mv runc /usr/bin/runc
 
 FROM base as buildah
-ARG BUILDAH_REVISION="master"
+ARG BUILDAH_REVISION="dockerfile-leading-args"
 RUN yum -y install \
     go-md2man \
     runc \
@@ -38,7 +38,7 @@ RUN mkdir ~/buildah && \
   cd ~/buildah && \
   export GOPATH=`pwd` && \
   cd $GOPATH/ && \
-  git clone https://github.com/containers/buildah ./src/github.com/containers/buildah && \
+  git clone https://github.com/vdemeester/buildah ./src/github.com/containers/buildah && \
   cd $GOPATH/src/github.com/containers/buildah && \
   git checkout "${BUILDAH_REVISION}" && \
   make && \
