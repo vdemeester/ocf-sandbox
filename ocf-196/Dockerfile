@@ -1,10 +1,8 @@
-FROM golang:1.11 as build
-COPY . src/app
-RUN go build -o /build app/cmd
-
 FROM centos:7
-RUN yum -y install git && yum clean all
+RUN yum -y install git golang && yum clean all
+COPY . /src/app
+ENV GOPATH=/
+RUN go build -o /usr/bin/build app/cmd
 COPY ./bin/oc /usr/bin/oc
 COPY ./spec.mustache /spec.mustache
-COPY --from=build ./build /usr/bin/build
 ENTRYPOINT ["/usr/bin/build"]
