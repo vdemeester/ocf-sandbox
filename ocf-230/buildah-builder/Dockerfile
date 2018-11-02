@@ -49,6 +49,8 @@ RUN yum -y install libarchive ostree lzo libseccomp libedit
 COPY --from=runc /usr/bin/runc /usr/bin/runc
 COPY --from=buildah /usr/local/bin/buildah /usr/bin/buildah
 COPY --from=buildah /etc/containers /etc/containers
+COPY push.sh /usr/bin/push
+RUN chmod +x /usr/bin/push
 ENV BUILDAH_ISOLATION chroot
 ENV STORAGE_DRIVER vfs
 
