@@ -1,0 +1,174 @@
+#+TITLE: Kubecon build demo
+
+* Pre-requisite
+
+Login and make sure we have the creds in
+
+#+BEGIN_SRC shell :results silent
+oc login -u admin -p admin
+oc project myproject
+oc adm policy add-scc-to-user privileged -z default
+oc apply -f ../auth.yml
+oc secrets new dockerhub ~/.docker/config.json || true
+#+END_SRC
+
+Make sure =minishift= can run the builds :
+
+- set user namespace
+
+#+BEGIN_SRC shell :results drawer
+minishift ssh -- "echo 15000 | sudo -i tee /proc/sys/user/max_user_namespaces"
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+15000
+:END:
+
+- set SELinux to permissive (temporarly)
+
+#+BEGIN_SRC shell :results drawer
+# remove this once container-selinux package is up-to-date
+minishift ssh -- sudo -i setenforce 0
+minishift ssh -- sudo -i getenforce
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+:END:
+
+#+BEGIN_SRC shell :results drawer
+oc get all
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+NAME                                              REFERENCE                TARGETS         MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/istio-pilot   Deployment/istio-pilot   <unknown>/80%   1         5         0          1d
+NAME                                               AGE
+buildtemplate.build.knative.dev/openshift-builds   1d
+:END:
+
+* Build
+
+** =s2i= build template
+
+The template is the following
+
+#+BEGIN_SRC yaml
+apiVersion: build.knative.dev/v1alpha1
+kind: BuildTemplate
+metadata:
+  name: s2i
+spec:
+  parameters:
+  - name: BUILDER_IMAGE
+    description: The location of the buildah builder image.
+    default: docker.io/vdemeester/s2i-builder
+  - name: BUILDAH_BUILDER_IMAGE
+    description: The location of the buildah builder image.
+    default: docker.io/vdemeester/buildah-builder
+  - name: IMAGE
+    description: The name of the image to push.
+  - name: BASE_IMAGE
+    description: S2I base image to use to build the final image
+  - name: TLSVERIFY
+    description: Verify the TLS on the registry endpoint (for push/pull to a non-TLS registry)
+    default: "true"
+
+  steps:
+  - name: generate
+    image: ${BUILDER_IMAGE}
+    args: ['/workspace', '${BASE_IMAGE}', '${IMAGE}']
+    workingDir: /sources
+    volumeMounts:
+    - name: generatedsources
+      mountPath: /sources
+  - name: build
+    image: ${BUILDAH_BUILDER_IMAGE}
+    args: ['buildah', 'bud', '--tls-verify=${TLSVERIFY}', '--layers', '-f', 'Dockerfile', '-t', '${IMAGE}', '.']
+    workingDir: /sources
+    volumeMounts:
+    - name: generatedsources
+      mountPath: /sources
+    - name: varlibcontainers
+      mountPath: /var/lib/containers
+  - name: push
+    image: ${BUILDAH_BUILDER_IMAGE}
+    args: ['push', '--tls-verify=${TLSVERIFY}', '${IMAGE}', 'docker://${IMAGE}']
+    volumeMounts:
+    - name: varlibcontainers
+      mountPath: /var/lib/containers
+
+  volumes:
+  - name: varlibcontainers
+    emptyDir: {}
+  - name: generatedsources
+    emptyDir: {}
+#+END_SRC
+
+#+BEGIN_SRC shell :results drawer
+oc get buildtemplate.build.knative.dev
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+NAME      AGE
+s2i       53s
+:END:
+
+** Run a build
+
+#+BEGIN_SRC yaml
+apiVersion: build.knative.dev/v1alpha1
+kind: Build
+metadata:
+  name: s2i-build-my-repo
+spec:
+  timeout: 50m
+  serviceAccountName: builder
+  source:
+    git:
+      url: https://github.com/vdemeester/os-sample-python
+      revision: master
+  template:
+    name: s2i
+    arguments:
+    - name: BASE_IMAGE
+      value: centos/python-36-centos7
+    - name: IMAGE
+      value: docker-registry.default.svc:5000/myproject/helloworld-python
+    - name: TLSVERIFY
+      value: "false"
+#+END_SRC
+
+#+BEGIN_SRC shell :results drawer
+oc get all
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+NAME                          READY     STATUS     RESTARTS   AGE
+pod/s2i-build-my-repo-k4ntx   0/1       Init:3/5   0          3m
+NAME                                              REFERENCE                TARGETS         MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/istio-pilot   Deployment/istio-pilot   <unknown>/80%   1         5         0          2d
+NAME                                  AGE
+buildtemplate.build.knative.dev/s2i   5m
+NAME                                        AGE       COMPLETED
+build.build.knative.dev/s2i-build-my-repo   5m        24s
+:END:
+
+* Utilities
+
+- Clean things
+
+#+BEGIN_SRC shell :results drawer
+oc delete build.build.knative.dev,buildtemplate.build.knative.dev,service.serving.knative.dev,build,buildconfig --all
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+build.build.knative.dev "s2i-build-my-repo" deleted
+buildtemplate.build.knative.dev "s2i" deleted
+:END:
+

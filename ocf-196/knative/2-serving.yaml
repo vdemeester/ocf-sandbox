@@ -17,15 +17,18 @@ spec:
           - name: IMAGE_STREAM
             value: python:3.6
           - name: IMAGE
-            value: docker.io/vdemeester/helloworld-openshift-python
+            value: docker-registry.default.svc:5000/myproject/os-sample-python
           - name: NAME
             value: foo-build
       revisionTemplate:
+        metadata:
+          annotations:
+            alpha.image.policy.openshift.io/resolve-names: "*"
         spec:
           container:
-            image: docker.io/vdemeester/helloworld-openshift-python
+            #image: docker.io/vdemeester/helloworld-openshift-python
             imagePullPolicy: Always
-            #image: docker-registry.default.svc:5000/myproject/os-sample-python # doesn't work, see OC-199 (I think)
+            image: docker-registry.default.svc:5000/myproject/os-sample-python
             env:
             - name: BAR
               value: "bar"
