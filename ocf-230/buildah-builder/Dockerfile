@@ -51,4 +51,4 @@ COPY --from=buildah /usr/local/bin/buildah /usr/bin/buildah
 COPY --from=buildah /etc/containers /etc/containers
 ENV BUILDAH_ISOLATION chroot
 ENV STORAGE_DRIVER vfs
-ENTRYPOINT ["buildah"]
+ENTRYPOINT ["/bin/bash", "-c", "buildah"]
